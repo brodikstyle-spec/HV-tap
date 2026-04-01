@@ -45,7 +45,6 @@
             z-index: 10;
         }
 
-        /* Анимация звёздочек (как молнии в Россетях) */
         .star {
             position: absolute;
             color: #ffd700;
@@ -422,7 +421,7 @@
             </div>
         </div>
         
-        <button class="tap-button" id="tapBtn" style="display: none;">ТАП</button>
+        <button class="tap-button disabled" id="tapBtn" style="display: none;">ТАП</button>
         
         <div class="victory-message" id="victoryMessage" style="display: none;">
             🎉 ПОБЕДА! Цель достигнута! 🎉
@@ -434,7 +433,7 @@
         </div>
         
         <div class="status-message" id="statusMessage" style="display: none;">
-            👆 Тапай, чтобы накопить энергию!
+            ⏳ Ожидание начала игры... ⏳
         </div>
         
         <footer style="display: none;" id="footer">
@@ -450,6 +449,7 @@
         let userName = '';
         let userId = '';
         let isGameActive = true;
+        let gameStarted = false;
         
         function createTapAnimation() {
             const container = document.getElementById('animationContainer');
@@ -460,7 +460,6 @@
             const centerX = buttonRect.left + buttonRect.width / 2 - containerRect.left;
             const centerY = buttonRect.top + buttonRect.height / 2 - containerRect.top;
             
-            // 5 звёздочек в случайных местах вокруг кнопки (как молнии в Россетях)
             for (let i = 0; i < 5; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
@@ -495,9 +494,34 @@
                 document.getElementById('statusMessage').innerHTML = '🎉 ПОБЕДА! Цель достигнута! 🎉';
             } else {
                 isGameActive = true;
-                document.getElementById('tapBtn').classList.remove('disabled');
+                if (gameStarted) {
+                    document.getElementById('tapBtn').classList.remove('disabled');
+                }
                 document.getElementById('victoryMessage').style.display = 'none';
                 document.getElementById('statusMessage').classList.remove('victory');
+            }
+        }
+        
+        async function checkGameStatus() {
+            try {
+                const response = await fetch(API_URL + '?status=1&t=' + Date.now());
+                const data = await response.json();
+                
+                if (data.success) {
+                    gameStarted = data.active;
+                    
+                    if (gameStarted) {
+                        document.getElementById('statusMessage').innerHTML = '✅ ИГРА НАЧАЛАСЬ! Тапай! ✅';
+                        if (isGameActive && userName) {
+                            document.getElementById('tapBtn').classList.remove('disabled');
+                        }
+                    } else {
+                        document.getElementById('statusMessage').innerHTML = '⏳ Ожидание начала игры... ⏳';
+                        document.getElementById('tapBtn').classList.add('disabled');
+                    }
+                }
+            } catch(error) {
+                console.error('Ошибка проверки статуса:', error);
             }
         }
         
@@ -520,6 +544,9 @@
             window.lastSavedCounter = 0;
             document.getElementById('counter').innerText = '0';
             updateProgress(0);
+            
+            // Начинаем проверять статус игры
+            checkGameStatus();
         }
         
         window.counter = 0;
@@ -549,7 +576,17 @@
         }
         
         function handleTap() {
-            if (!userName || !isGameActive) return;
+            if (!userName) {
+                document.getElementById('nameModal').classList.add('active');
+                return;
+            }
+            
+            if (!gameStarted) {
+                document.getElementById('statusMessage').innerHTML = '⏳ Игра ещё не началась! Ждите команды ведущего... ⏳';
+                return;
+            }
+            
+            if (!isGameActive) return;
             
             createTapAnimation();
             
@@ -564,12 +601,10 @@
             document.getElementById('counter').innerText = window.counter;
             updateProgress(window.counter);
             
-            // Анимация счётчика
             const counterEl = document.getElementById('counter');
             counterEl.classList.add('counter-pop');
             setTimeout(() => counterEl.classList.remove('counter-pop'), 200);
             
-            // Анимация кнопки
             const btn = document.getElementById('tapBtn');
             btn.classList.add('button-press');
             btn.classList.add('button-pulse');
@@ -593,6 +628,9 @@
             e.preventDefault();
             handleTap();
         });
+        
+        // Проверяем статус игры каждые 3 секунды
+        setInterval(checkGameStatus, 3000);
     </script>
 </body>
 </html>
