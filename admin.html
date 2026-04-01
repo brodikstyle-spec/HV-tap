@@ -52,17 +52,17 @@
         .tab-content { display: none; min-height: 500px; }
         .tab-content.active { display: block; }
         .polyhedron-container {
-            position: relative;
             display: flex;
             justify-content: center;
             margin: 30px 0;
+            background: #f8f9fa;
+            border-radius: 24px;
+            padding: 20px;
         }
-        canvas {
+        svg {
             max-width: 100%;
             height: auto;
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            background: #f8f9fa;
+            border-radius: 16px;
         }
         .stats-panel {
             display: flex;
@@ -99,10 +99,7 @@
             padding: 8px 15px;
             font-size: 0.85rem;
         }
-        .face-badge.lit {
-            background: #ff6b6b;
-            color: white;
-        }
+        .face-badge.lit { background: #ff6b6b; color: white; }
         .table-container {
             background: #f8f8f8;
             border-radius: 30px;
@@ -152,9 +149,6 @@
             transform: translateX(-50%);
             font-size: 2.5rem;
         }
-        .podium-1 .podium-rank,
-        .podium-1 .podium-name,
-        .podium-1 .podium-score { color: white; }
         .footer {
             margin-top: 30px;
             display: flex;
@@ -193,7 +187,14 @@
 
         <div id="polyhedronTab" class="tab-content active">
             <div class="polyhedron-container">
-                <canvas id="polyhedronCanvas" width="600" height="587" style="width: 100%; height: auto; max-width: 600px; aspect-ratio: 600/587;"></canvas>
+                <svg width="603" height="523" viewBox="0 0 603 523" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path id="face1" d="M451.363 1.00195H150.863L219.863 112.002H387.863L451.363 1.00195Z" fill="#e9ecef" stroke="black"/>
+                    <path id="face2" d="M150.347 1.00195L37.8633 197.002H170.347L219.347 112.002L150.347 1.00195Z" fill="#e9ecef" stroke="black"/>
+                    <path id="face3" d="M218.955 410.502L171.363 326.002H37.8633L151.363 521.502L218.955 410.502Z" fill="#e9ecef" stroke="black"/>
+                    <path id="face4" d="M151.863 521.002L219.455 410.002H389.863L452.363 521.002H151.863Z" fill="#e9ecef" stroke="black"/>
+                    <path id="face5" d="M170.363 325.502H438.363L388.363 410.002L450.863 521.002L601.863 262.002H0.863281L36.8633 325.502H170.363Z" fill="#e9ecef" stroke="black"/>
+                    <path id="face6" d="M0.863281 261.502H601.863L450.863 1.00195L387.363 112.002L438.363 197.002H170.363H37.8796L0.863281 261.502Z" fill="#e9ecef" stroke="black"/>
+                </svg>
             </div>
             <div class="stats-panel">
                 <div class="stat-card"><div class="stat-value" id="totalEnergy">0</div><div class="stat-label">Всего энергии</div></div>
@@ -223,102 +224,30 @@
 
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbxkqRPD0Sg7FYfrXI8TZY_dqnV-ms6zXhzfrT2-wfDyRiPPNmCuNYoKYG4hvPKwvjX7/exec';
-        const MAX_ENERGY = 100;   // 🔥 ИЗМЕНЕНО ДЛЯ ТЕСТА: порог 100 единиц
+        const MAX_ENERGY = 100;
         const FACES_COUNT = 6;
         let currentData = null;
-        let polyhedronImage = new Image();
-        let imageLoaded = false;
-        
-        // Координаты граней (внешние грани)
-        const FACE_PATHS = [
-            [[300, 0], [450, 87], [375, 174], [225, 174], [150, 87]],
-            [[450, 87], [600, 293], [525, 380], [375, 174]],
-            [[600, 293], [450, 587], [300, 500], [525, 380]],
-            [[450, 587], [150, 587], [225, 500], [375, 500]],
-            [[150, 587], [0, 293], [75, 380], [225, 500]],
-            [[0, 293], [150, 87], [225, 174], [75, 380]]
-        ];
-
-        // Координаты центрального отверстия (шестиугольник)
-        const HOLE_PATH = [
-            [225, 174], [375, 174], [450, 293], [375, 413], [225, 413], [150, 293]
-        ];
-
-        polyhedronImage.src = 'polyhedron.png';
-        polyhedronImage.onload = () => { imageLoaded = true; if (currentData) updatePolyhedronTab(currentData); };
 
         function formatNumber(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
         function getPlayerName(p) { return p.userName || p.userId || 'Аноним'; }
 
-        // Пороги для 6 граней при MAX_ENERGY = 100:
-        // Грань 1: 17, Грань 2: 34, Грань 3: 50, Грань 4: 67, Грань 5: 84, Грань 6: 100
         function getEnergyThreshold(i) { return Math.ceil((i + 1) / FACES_COUNT * MAX_ENERGY); }
         function getLitFaces(energy) { let lit = []; for (let i=0; i<FACES_COUNT; i++) if (energy >= getEnergyThreshold(i)) lit.push(i); return lit; }
 
-        function drawPolyhedron(energy) {
-            const canvas = document.getElementById('polyhedronCanvas');
-            const ctx = canvas.getContext('2d');
-            const w = canvas.width, h = canvas.height;
-            ctx.clearRect(0, 0, w, h);
-            
-            if (imageLoaded && polyhedronImage.complete) {
-                ctx.drawImage(polyhedronImage, 0, 0, w, h);
-            } else {
-                ctx.fillStyle = '#e9ecef';
-                ctx.fillRect(0, 0, w, h);
-                ctx.fillStyle = '#adb5bd';
-                ctx.font = '16px Inter';
-                ctx.fillText('Загрузка картинки...', w/2-70, h/2);
-                return;
-            }
-            
+        function updatePolyhedron(energy) {
             const litFaces = getLitFaces(energy);
-            
-            // Рисуем полупрозрачную заливку на внешних гранях
-            ctx.save();
-            ctx.globalAlpha = 0.65;
-            for (let i = 0; i < FACES_COUNT; i++) {
-                if (litFaces.includes(i)) {
-                    ctx.beginPath();
-                    const points = FACE_PATHS[i];
-                    ctx.moveTo(points[0][0], points[0][1]);
-                    for (let j = 1; j < points.length; j++) ctx.lineTo(points[j][0], points[j][1]);
-                    ctx.closePath();
-                    ctx.fillStyle = '#ff6b6b';
-                    ctx.fill();
+            for (let i = 1; i <= FACES_COUNT; i++) {
+                const face = document.getElementById(`face${i}`);
+                if (face) {
+                    if (litFaces.includes(i-1)) {
+                        face.setAttribute('fill', '#ff6b6b');
+                        face.setAttribute('stroke', '#ff6b6b');
+                    } else {
+                        face.setAttribute('fill', '#e9ecef');
+                        face.setAttribute('stroke', 'black');
+                    }
                 }
             }
-            ctx.restore();
-            
-            // Вырезаем центральное отверстие
-            ctx.save();
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.beginPath();
-            ctx.moveTo(HOLE_PATH[0][0], HOLE_PATH[0][1]);
-            for (let i = 1; i < HOLE_PATH.length; i++) ctx.lineTo(HOLE_PATH[i][0], HOLE_PATH[i][1]);
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(0,0,0,1)';
-            ctx.fill();
-            ctx.restore();
-            
-            // Обводка граней
-            ctx.strokeStyle = '#dee2e6';
-            ctx.lineWidth = 1.5;
-            for (let i = 0; i < FACES_COUNT; i++) {
-                ctx.beginPath();
-                const points = FACE_PATHS[i];
-                ctx.moveTo(points[0][0], points[0][1]);
-                for (let j = 1; j < points.length; j++) ctx.lineTo(points[j][0], points[j][1]);
-                ctx.closePath();
-                ctx.stroke();
-            }
-            
-            // Обводка отверстия
-            ctx.beginPath();
-            ctx.moveTo(HOLE_PATH[0][0], HOLE_PATH[0][1]);
-            for (let i = 1; i < HOLE_PATH.length; i++) ctx.lineTo(HOLE_PATH[i][0], HOLE_PATH[i][1]);
-            ctx.closePath();
-            ctx.stroke();
         }
 
         function updateFaceList(energy) {
@@ -337,7 +266,7 @@
             const totalEnergy = players.reduce((s,p) => s + (p.taps||0), 0);
             document.getElementById('totalEnergy').textContent = totalEnergy;
             document.getElementById('totalPlayers').textContent = players.length;
-            drawPolyhedron(totalEnergy);
+            updatePolyhedron(totalEnergy);
             updateFaceList(totalEnergy);
         }
 
