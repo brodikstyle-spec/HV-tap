@@ -99,7 +99,10 @@
             padding: 8px 15px;
             font-size: 0.85rem;
         }
-        .face-badge.lit { background: #ff6b6b; color: white; }
+        .face-badge.lit {
+            background: #ff6b6b;
+            color: white;
+        }
         .table-container {
             background: #f8f8f8;
             border-radius: 30px;
@@ -188,12 +191,12 @@
         <div id="polyhedronTab" class="tab-content active">
             <div class="polyhedron-container">
                 <svg width="603" height="523" viewBox="0 0 603 523" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path id="face1" d="M451.363 1.00195H150.863L219.863 112.002H387.863L451.363 1.00195Z" fill="#50A39E" stroke="#50A39E"/>
-                    <path id="face2" d="M150.347 1.00195L37.8633 197.002H170.347L219.347 112.002L150.347 1.00195Z" fill="#009AC9" stroke="#009AC9"/>
-                    <path id="face3" d="M218.955 410.502L171.363 326.002H37.8633L151.363 521.502L218.955 410.502Z" fill="#C66494" stroke="#C66494"/>
-                    <path id="face4" d="M151.863 521.002L219.455 410.002H389.863L452.363 521.002H151.863Z" fill="#EB454A" stroke="#EB454A"/>
-                    <path id="face5" d="M170.363 325.502H438.363L388.363 410.002L450.863 521.002L601.863 262.002H0.863281L36.8633 325.502H170.363Z" fill="#FFA736" stroke="#FFA736"/>
-                    <path id="face6" d="M0.863281 261.502H601.863L450.863 1.00195L387.363 112.002L438.363 197.002H170.363H37.8796L0.863281 261.502Z" fill="#EDDD33" stroke="#EDDD33"/>
+                    <path id="face1" d="M451.363 1.00195H150.863L219.863 112.002H387.863L451.363 1.00195Z" fill="#e9ecef" stroke="black"/>
+                    <path id="face2" d="M150.347 1.00195L37.8633 197.002H170.347L219.347 112.002L150.347 1.00195Z" fill="#e9ecef" stroke="black"/>
+                    <path id="face3" d="M218.955 410.502L171.363 326.002H37.8633L151.363 521.502L218.955 410.502Z" fill="#e9ecef" stroke="black"/>
+                    <path id="face4" d="M151.863 521.002L219.455 410.002H389.863L452.363 521.002H151.863Z" fill="#e9ecef" stroke="black"/>
+                    <path id="face5" d="M170.363 325.502H438.363L388.363 410.002L450.863 521.002L601.863 262.002H0.863281L36.8633 325.502H170.363Z" fill="#e9ecef" stroke="black"/>
+                    <path id="face6" d="M0.863281 261.502H601.863L450.863 1.00195L387.363 112.002L438.363 197.002H170.363H37.8796L0.863281 261.502Z" fill="#e9ecef" stroke="black"/>
                 </svg>
             </div>
             <div class="stats-panel">
@@ -228,6 +231,9 @@
         const FACES_COUNT = 6;
         let currentData = null;
 
+        // Цвета для каждой грани (в том же порядке, что в SVG)
+        const FACE_COLORS = ['#50A39E', '#009AC9', '#C66494', '#EB454A', '#FFA736', '#EDDD33'];
+
         function formatNumber(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
         function getPlayerName(p) { return p.userName || p.userId || 'Аноним'; }
 
@@ -240,9 +246,11 @@
                 const face = document.getElementById(`face${i}`);
                 if (face) {
                     if (litFaces.includes(i-1)) {
-                        face.setAttribute('fill', '#ff6b6b');
-                        face.setAttribute('stroke', '#ff6b6b');
+                        // Закрашиваем своим цветом
+                        face.setAttribute('fill', FACE_COLORS[i-1]);
+                        face.setAttribute('stroke', 'black');
                     } else {
+                        // Незакрашенная грань — светло-серая
                         face.setAttribute('fill', '#e9ecef');
                         face.setAttribute('stroke', 'black');
                     }
