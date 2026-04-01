@@ -60,19 +60,20 @@
 
         .logo-container {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            padding: 8px 0;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
         }
 
         .logo-container h2 {
             color: #ff6b6b;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            letter-spacing: 2px;
         }
 
         .logo-container p {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         h1 {
@@ -86,7 +87,7 @@
         .subtitle {
             text-align: center;
             color: #666;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             margin-bottom: 20px;
             border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
             padding-bottom: 12px;
@@ -95,24 +96,50 @@
         .energy-card {
             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             border-radius: 32px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 16px;
+            margin-bottom: 5px;
             border: 1px solid rgba(0, 0, 0, 0.1);
             box-shadow: 0 6px 0 rgba(0, 0, 0, 0.05);
-            text-align: center;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #ff6b6b;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            background: rgba(255, 107, 107, 0.1);
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            font-weight: 600;
         }
 
         .megawatt-value {
-            font-size: 4.5rem;
+            font-size: 4rem;
             font-weight: 900;
+            text-align: center;
+            line-height: 1;
             color: #ff6b6b;
-            margin: 10px 0;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+            margin: 5px 0 4px;
+            letter-spacing: 4px;
         }
 
         .mw-label {
-            color: #666;
-            font-size: 0.9rem;
-            letter-spacing: 2px;
+            text-align: center;
+            color: #ff6b6b;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            font-weight: 600;
         }
 
         .progress-bar-container {
@@ -121,7 +148,7 @@
             background: #e9ecef;
             border-radius: 20px;
             overflow: hidden;
-            margin: 15px 0;
+            margin: 15px 0 5px;
         }
 
         .progress-bar {
@@ -138,7 +165,7 @@
             border-radius: 50%;
             background: radial-gradient(circle at 30% 30%, #ff6b6b, #ff5252);
             border: none;
-            margin: 10px auto;
+            margin: 20px auto 25px auto;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -183,28 +210,56 @@
             background: #f8f9fa;
             border-radius: 50px;
             padding: 12px 16px;
-            margin: 15px 0;
+            margin: 20px 0 16px 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
             border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
+        .user-id-label {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .user-id-value {
+            color: #ff6b6b;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 30px;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            font-weight: 500;
+        }
+
         .status-message {
             background: #f8f9fa;
             border-radius: 30px;
             padding: 10px 14px;
+            margin-top: 5px;
             text-align: center;
             font-size: 0.9rem;
             border-left: 4px solid #ff6b6b;
             color: #333;
         }
 
+        .status-message.victory {
+            border-left-color: #ffd700;
+            background: #fff9e6;
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
         footer {
             text-align: center;
             color: #999;
-            font-size: 0.7rem;
-            margin-top: 15px;
+            font-size: 0.65rem;
+            margin-top: 18px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding-top: 12px;
         }
 
         .modal {
@@ -241,6 +296,11 @@
             margin-bottom: 15px;
         }
 
+        .modal-content p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
         .name-input {
             width: 100%;
             padding: 12px 16px;
@@ -252,6 +312,11 @@
             outline: none;
         }
 
+        .name-input:focus {
+            border-color: #ff5252;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+        }
+
         .save-btn {
             background: #ff6b6b;
             border: none;
@@ -259,7 +324,15 @@
             padding: 12px 30px;
             border-radius: 40px;
             font-weight: 800;
+            font-size: 1.1rem;
             cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #ff6b6b;
+        }
+
+        .save-btn:hover {
+            background: #ff5252;
+            transform: scale(1.05);
         }
 
         @media (max-width: 400px) {
@@ -267,6 +340,7 @@
                 width: 180px;
                 height: 180px;
                 font-size: 2rem;
+                margin: 15px auto 20px auto;
             }
             .megawatt-value {
                 font-size: 3.5rem;
@@ -296,6 +370,9 @@
         <div class="subtitle">Каждый тап = 1 единица энергии</div>
         
         <div class="energy-card">
+            <div class="stats-row">
+                <span class="badge">✨ накоплено</span>
+            </div>
             <div class="megawatt-value" id="counter">0</div>
             <div class="mw-label">ЕДИНИЦ ЭНЕРГИИ</div>
             <div class="progress-bar-container">
@@ -310,8 +387,8 @@
         </div>
         
         <div class="user-info" style="display: none;" id="userInfo">
-            <span>👤 УЧАСТНИК</span>
-            <span id="userNameDisplay"></span>
+            <span class="user-id-label">👤 УЧАСТНИК</span>
+            <span class="user-id-value" id="userNameDisplay">загрузка...</span>
         </div>
         
         <div class="status-message" id="statusMessage" style="display: none;">
@@ -324,10 +401,9 @@
     </div>
 
     <script>
-        // ⚡ ВСТАВЬТЕ ВАШУ ССЫЛКУ НА СКРИПТ
         const API_URL = 'https://script.google.com/macros/s/AKfycbxkqRPD0Sg7FYfrXI8TZY_dqnV-ms6zXhzfrT2-wfDyRiPPNmCuNYoKYG4hvPKwvjX7/exec';
         const SAVE_INTERVAL = 20;
-        const MAX_ENERGY = 10000;
+        const MAX_ENERGY = 100;
         
         let userName = '';
         let userId = '';
@@ -352,11 +428,13 @@
                 isGameActive = false;
                 document.getElementById('tapBtn').classList.add('disabled');
                 document.getElementById('victoryMessage').style.display = 'block';
+                document.getElementById('statusMessage').classList.add('victory');
                 document.getElementById('statusMessage').innerHTML = '🎉 ПОБЕДА! Цель достигнута! 🎉';
             } else {
                 isGameActive = true;
                 document.getElementById('tapBtn').classList.remove('disabled');
                 document.getElementById('victoryMessage').style.display = 'none';
+                document.getElementById('statusMessage').classList.remove('victory');
             }
         }
         
@@ -393,7 +471,11 @@
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, userName, taps: tapsValue })
+                    body: JSON.stringify({
+                        userId: userId,
+                        userName: userName || 'Аноним',
+                        taps: tapsValue
+                    })
                 });
                 
                 window.lastSavedCounter = tapsValue;
