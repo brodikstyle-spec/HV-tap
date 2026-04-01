@@ -45,17 +45,57 @@
             z-index: 10;
         }
 
-        .spark {
+        /* Анимация звёздочек (как молнии в Россетях) */
+        .star {
             position: absolute;
-            color: #ff6b6b;
-            filter: drop-shadow(0 0 10px #ff6b6b);
-            animation: sparkFly 0.8s ease-out forwards;
+            color: #ffd700;
+            filter: drop-shadow(0 0 15px #ffd700);
+            animation: starFlash 0.8s ease-out forwards;
+            z-index: 25;
+            transform-origin: center;
             font-size: 2rem;
         }
 
-        @keyframes sparkFly {
-            0% { opacity: 1; transform: scale(0.5) translateY(0); }
-            100% { opacity: 0; transform: scale(1.5) translateY(-50px); }
+        @keyframes starFlash {
+            0% {
+                opacity: 1;
+                transform: scale(0.5) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5) rotate(15deg);
+                filter: drop-shadow(0 0 30px #ffd700);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2) rotate(-15deg) translateY(-30px);
+                filter: drop-shadow(0 0 40px #ffd700);
+            }
+        }
+
+        @keyframes buttonPulse {
+            0% { box-shadow: 0 12px 0 #c0392b, 0 20px 30px rgba(0, 0, 0, 0.2); }
+            50% { box-shadow: 0 12px 0 #c0392b, 0 20px 40px rgba(255, 107, 107, 0.6); }
+            100% { box-shadow: 0 12px 0 #c0392b, 0 20px 30px rgba(0, 0, 0, 0.2); }
+        }
+
+        .button-pulse {
+            animation: buttonPulse 0.3s ease-out !important;
+        }
+
+        .button-press {
+            transform: translateY(8px) !important;
+            transition: transform 0.05s linear;
+        }
+
+        .counter-pop {
+            animation: counterPop 0.2s ease-out;
+        }
+
+        @keyframes counterPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); color: #ff5252; }
+            100% { transform: scale(1); }
         }
 
         .logo-container {
@@ -178,6 +218,8 @@
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
             border: 3px solid #ffb8b8;
+            position: relative;
+            z-index: 5;
         }
 
         .tap-button:active {
@@ -409,15 +451,36 @@
         let userId = '';
         let isGameActive = true;
         
-        function createTapAnimation(x, y) {
+        function createTapAnimation() {
             const container = document.getElementById('animationContainer');
-            const spark = document.createElement('div');
-            spark.className = 'spark';
-            spark.innerHTML = '✨';
-            spark.style.left = x + 'px';
-            spark.style.top = y + 'px';
-            container.appendChild(spark);
-            setTimeout(() => spark.remove(), 800);
+            const button = document.getElementById('tapBtn');
+            const buttonRect = button.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            
+            const centerX = buttonRect.left + buttonRect.width / 2 - containerRect.left;
+            const centerY = buttonRect.top + buttonRect.height / 2 - containerRect.top;
+            
+            // 5 звёздочек в случайных местах вокруг кнопки (как молнии в Россетях)
+            for (let i = 0; i < 5; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.innerHTML = '✨';
+                
+                const randomAngle = Math.random() * Math.PI * 2;
+                const randomRadius = 80 + Math.random() * 100;
+                
+                const starX = centerX + Math.cos(randomAngle) * randomRadius;
+                const starY = centerY + Math.sin(randomAngle) * randomRadius;
+                
+                star.style.left = starX + 'px';
+                star.style.top = starY + 'px';
+                
+                const size = 1.5 + Math.random() * 2;
+                star.style.fontSize = size + 'rem';
+                
+                container.appendChild(star);
+                setTimeout(() => star.remove(), 800);
+            }
         }
         
         function updateProgress(currentValue) {
@@ -485,20 +548,10 @@
             }
         }
         
-        function handleTap(event) {
+        function handleTap() {
             if (!userName || !isGameActive) return;
             
-            let x, y;
-            if (event.touches) {
-                x = event.touches[0].clientX;
-                y = event.touches[0].clientY;
-            } else {
-                x = event.clientX;
-                y = event.clientY;
-            }
-            
-            const rect = document.querySelector('.game-container').getBoundingClientRect();
-            createTapAnimation(x - rect.left, y - rect.top);
+            createTapAnimation();
             
             if (window.counter + 1 > MAX_ENERGY) {
                 window.counter = MAX_ENERGY;
@@ -510,6 +563,21 @@
             window.counter++;
             document.getElementById('counter').innerText = window.counter;
             updateProgress(window.counter);
+            
+            // Анимация счётчика
+            const counterEl = document.getElementById('counter');
+            counterEl.classList.add('counter-pop');
+            setTimeout(() => counterEl.classList.remove('counter-pop'), 200);
+            
+            // Анимация кнопки
+            const btn = document.getElementById('tapBtn');
+            btn.classList.add('button-press');
+            btn.classList.add('button-pulse');
+            
+            setTimeout(() => {
+                btn.classList.remove('button-press');
+                btn.classList.remove('button-pulse');
+            }, 300);
             
             if (navigator.vibrate) navigator.vibrate(20);
             
@@ -523,7 +591,7 @@
         document.getElementById('tapBtn').addEventListener('click', handleTap);
         document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
-            handleTap(e);
+            handleTap();
         });
     </script>
 </body>
