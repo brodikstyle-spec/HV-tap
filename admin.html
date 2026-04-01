@@ -101,7 +101,7 @@
         }
         .face-badge.lit { background: #ff6b6b; color: white; }
         
-        /* Таблица лидеров — стили как в Россетях */
+        /* Таблица лидеров и подиум — единые стили шрифтов */
         .table-container {
             background: #f8f8f8;
             border-radius: 30px;
@@ -117,6 +117,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-size: 1rem;
         }
         .table-row {
             display: grid;
@@ -125,6 +126,7 @@
             border-bottom: 1px solid #e9ecef;
             background: white;
             align-items: center;
+            font-size: 1rem;
         }
         .rank {
             font-weight: 800;
@@ -164,6 +166,7 @@
             color: #ff6b6b;
         }
         
+        /* Подиум — теперь такие же шрифты, как в таблице */
         .podium {
             display: flex;
             justify-content: center;
@@ -179,6 +182,7 @@
             text-align: center;
             min-width: 180px;
             position: relative;
+            font-size: 1rem;
         }
         .podium-1 {
             transform: scale(1.1);
@@ -192,6 +196,31 @@
             transform: translateX(-50%);
             font-size: 2.5rem;
         }
+        .podium-rank {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .podium-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+        .podium-score {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+        .podium-score small {
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+        .podium-1 .podium-rank,
+        .podium-1 .podium-name,
+        .podium-1 .podium-score {
+            color: white;
+        }
+        
         .footer {
             margin-top: 30px;
             display: flex;
@@ -228,6 +257,9 @@
         @media (max-width: 700px) {
             .table-header, .table-row { grid-template-columns: 50px 1fr 100px 50px; font-size: 0.8rem; }
             .podium-card { min-width: 130px; padding: 15px; }
+            .podium-rank { font-size: 1.2rem; }
+            .podium-name { font-size: 0.9rem; }
+            .podium-score { font-size: 1rem; }
             .button-group { flex-wrap: wrap; justify-content: center; }
         }
     </style>
@@ -351,7 +383,7 @@
             document.getElementById('totalPlayers').textContent = totalPlayers;
             document.getElementById('totalEnergy').textContent = totalEnergy;
             
-            // Подиум для топ-3 (как в Россетях)
+            // Подиум для топ-3
             let podiumHtml = '';
             
             if (players.length > 1) {
@@ -374,7 +406,7 @@
             
             document.getElementById('podium').innerHTML = podiumHtml;
             
-            // 🔥 ТАБЛИЦА: ТОП-5 (места 4 и 5) — как в Россетях
+            // Таблица: топ-5 (места 4 и 5)
             const tablePlayers = players.slice(3, 5);
             
             const rowsHtml = tablePlayers.map((player, index) => {
