@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Школа вожатых | Тапай</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .game-container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 48px;
+            padding: 24px 20px 32px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .animation-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .spark {
+            position: absolute;
+            color: #ff6b6b;
+            filter: drop-shadow(0 0 10px #ff6b6b);
+            animation: sparkFly 0.8s ease-out forwards;
+            font-size: 2rem;
+        }
+
+        @keyframes sparkFly {
+            0% { opacity: 1; transform: scale(0.5) translateY(0); }
+            100% { opacity: 0; transform: scale(1.5) translateY(-50px); }
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-container h2 {
+            color: #ff6b6b;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .logo-container p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            color: #ff6b6b;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+            padding-bottom: 12px;
+        }
+
+        .energy-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 32px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .megawatt-value {
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: #ff6b6b;
+            margin: 10px 0;
+        }
+
+        .mw-label {
+            color: #666;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: #e9ecef;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff6b6b, #ff8787);
+            transition: width 0.3s ease;
+            border-radius: 20px;
+        }
+
+        .tap-button {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #ff5252);
+            border: none;
+            margin: 10px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: white;
+            text-transform: uppercase;
+            box-shadow: 0 12px 0 #c0392b, 0 20px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.05s linear;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            border: 3px solid #ffb8b8;
+        }
+
+        .tap-button:active {
+            transform: translateY(8px);
+        }
+
+        .tap-button.disabled {
+            opacity: 0.5;
+            transform: none;
+            pointer-events: none;
+            background: radial-gradient(circle at 30% 30%, #aaa, #888);
+            box-shadow: 0 12px 0 #666;
+        }
+
+        .victory-message {
+            text-align: center;
+            color: #ff6b6b;
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin: 10px 0;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            border-radius: 50px;
+            padding: 12px 16px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .status-message {
+            background: #f8f9fa;
+            border-radius: 30px;
+            padding: 10px 14px;
+            text-align: center;
+            font-size: 0.9rem;
+            border-left: 4px solid #ff6b6b;
+            color: #333;
+        }
+
+        footer {
+            text-align: center;
+            color: #999;
+            font-size: 0.7rem;
+            margin-top: 15px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border: 2px solid #ff6b6b;
+            border-radius: 48px;
+            padding: 30px;
+            max-width: 350px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            color: #ff6b6b;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .name-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border: 2px solid #ff6b6b;
+            border-radius: 40px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        .save-btn {
+            background: #ff6b6b;
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 40px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        @media (max-width: 400px) {
+            .tap-button {
+                width: 180px;
+                height: 180px;
+                font-size: 2rem;
+            }
+            .megawatt-value {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animation-container" id="animationContainer"></div>
+
+    <div class="modal active" id="nameModal">
+        <div class="modal-content">
+            <h2>✨ ДОБРО ПОЖАЛОВАТЬ!</h2>
+            <p>Введите ваше имя для участия</p>
+            <input type="text" class="name-input" id="userNameInput" placeholder="Ваше имя" maxlength="20">
+            <button class="save-btn" onclick="saveUserName()">НАЧАТЬ</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="logo-container">
+            <h2>🏕️ ШКОЛА ВОЖАТЫХ</h2>
+            <p>Тапай, чтобы наполнить отряд энергией!</p>
+        </div>
+        
+        <h1>✨ ТАПАЙ</h1>
+        <div class="subtitle">Каждый тап = 1 единица энергии</div>
+        
+        <div class="energy-card">
+            <div class="megawatt-value" id="counter">0</div>
+            <div class="mw-label">ЕДИНИЦ ЭНЕРГИИ</div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+        
+        <button class="tap-button" id="tapBtn" style="display: none;">ТАП</button>
+        
+        <div class="victory-message" id="victoryMessage" style="display: none;">
+            🎉 ПОБЕДА! Цель достигнута! 🎉
+        </div>
+        
+        <div class="user-info" style="display: none;" id="userInfo">
+            <span>👤 УЧАСТНИК</span>
+            <span id="userNameDisplay"></span>
+        </div>
+        
+        <div class="status-message" id="statusMessage" style="display: none;">
+            👆 Тапай, чтобы накопить энергию!
+        </div>
+        
+        <footer style="display: none;" id="footer">
+            * результаты сохраняются в облаке
+        </footer>
+    </div>
+
+    <script>
+        // ⚡ ВСТАВЬТЕ ВАШУ ССЫЛКУ НА СКРИПТ
+        const API_URL = 'ВАША_ССЫЛКА_НА_СКРИПТ/exec';
+        const SAVE_INTERVAL = 20;
+        const MAX_ENERGY = 10000;
+        
+        let userName = '';
+        let userId = '';
+        let isGameActive = true;
+        
+        function createTapAnimation(x, y) {
+            const container = document.getElementById('animationContainer');
+            const spark = document.createElement('div');
+            spark.className = 'spark';
+            spark.innerHTML = '✨';
+            spark.style.left = x + 'px';
+            spark.style.top = y + 'px';
+            container.appendChild(spark);
+            setTimeout(() => spark.remove(), 800);
+        }
+        
+        function updateProgress(currentValue) {
+            const percent = Math.min(100, (currentValue / MAX_ENERGY) * 100);
+            document.getElementById('progressBar').style.width = percent + '%';
+            
+            if (currentValue >= MAX_ENERGY) {
+                isGameActive = false;
+                document.getElementById('tapBtn').classList.add('disabled');
+                document.getElementById('victoryMessage').style.display = 'block';
+                document.getElementById('statusMessage').innerHTML = '🎉 ПОБЕДА! Цель достигнута! 🎉';
+            } else {
+                isGameActive = true;
+                document.getElementById('tapBtn').classList.remove('disabled');
+                document.getElementById('victoryMessage').style.display = 'none';
+            }
+        }
+        
+        function saveUserName() {
+            const name = document.getElementById('userNameInput').value.trim();
+            if (!name) { alert('Введите имя'); return; }
+            
+            userName = name;
+            userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+            
+            document.getElementById('nameModal').classList.remove('active');
+            document.getElementById('tapBtn').style.display = 'flex';
+            document.getElementById('userInfo').style.display = 'flex';
+            document.getElementById('statusMessage').style.display = 'block';
+            document.getElementById('footer').style.display = 'block';
+            
+            document.getElementById('userNameDisplay').textContent = userName;
+            
+            window.counter = 0;
+            window.lastSavedCounter = 0;
+            document.getElementById('counter').innerText = '0';
+            updateProgress(0);
+        }
+        
+        window.counter = 0;
+        window.lastSavedCounter = 0;
+        
+        async function sendTapsToServer(tapsValue) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.innerText = '⏳ Отправка...';
+            
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, userName, taps: tapsValue })
+                });
+                
+                window.lastSavedCounter = tapsValue;
+                statusEl.innerText = '✅ Сохранено! ' + tapsValue + ' ед.';
+            } catch(e) {
+                statusEl.innerText = '❌ Ошибка';
+            }
+        }
+        
+        function handleTap(event) {
+            if (!userName || !isGameActive) return;
+            
+            let x, y;
+            if (event.touches) {
+                x = event.touches[0].clientX;
+                y = event.touches[0].clientY;
+            } else {
+                x = event.clientX;
+                y = event.clientY;
+            }
+            
+            const rect = document.querySelector('.game-container').getBoundingClientRect();
+            createTapAnimation(x - rect.left, y - rect.top);
+            
+            if (window.counter + 1 > MAX_ENERGY) {
+                window.counter = MAX_ENERGY;
+                document.getElementById('counter').innerText = window.counter;
+                updateProgress(window.counter);
+                return;
+            }
+            
+            window.counter++;
+            document.getElementById('counter').innerText = window.counter;
+            updateProgress(window.counter);
+            
+            if (navigator.vibrate) navigator.vibrate(20);
+            
+            if (window.counter % SAVE_INTERVAL === 0) {
+                sendTapsToServer(window.counter);
+            } else {
+                document.getElementById('statusMessage').innerText = `✨ +1! Всего: ${window.counter}`;
+            }
+        }
+
+        document.getElementById('tapBtn').addEventListener('click', handleTap);
+        document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleTap(e);
+        });
+    </script>
+</body>
+</html>
