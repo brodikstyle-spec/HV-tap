@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школа вожатых | Панель</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 48px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-header h1 {
+            color: #ff6b6b;
+            font-size: 2rem;
+        }
+
+        .polyhedron-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            background: #f8f9fa;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-panel {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 24px;
+            text-align: center;
+            flex: 1;
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #ff6b6b;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .faces-info {
+            background: #f8f9fa;
+            border-radius: 24px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .faces-info h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .face-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .face-badge {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .face-badge.lit {
+            background: #ff6b6b;
+            color: white;
+            border-color: #ff6b6b;
+        }
+
+        .footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .refresh-btn, .reset-btn {
+            padding: 12px 25px;
+            border-radius: 40px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refresh-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .reset-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .update-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-header">
+            <h1>🏕️ ШКОЛА ВОЖАТЫХ</h1>
+            <p>Многогранник отрядной энергии</p>
+        </div>
+
+        <div class="polyhedron-container">
+            <canvas id="polyhedronCanvas" width="400" height="400"></canvas>
+        </div>
+
+        <div class="stats-panel">
+            <div class="stat-card">
+                <div class="stat-value" id="totalEnergy">0</div>
+                <div class="stat-label">Всего энергии</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalPlayers">0</div>
+                <div class="stat-label">Участников</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="activeFaces">0</div>
+                <div class="stat-label">Закрашено граней</div>
+            </div>
+        </div>
+
+        <div class="faces-info">
+            <h3>✨ Закрашивание граней</h3>
+            <div class="face-list" id="faceList"></div>
+        </div>
+
+        <div class="footer">
+            <div class="update-time" id="updateTime">Обновление...</div>
+            <div style="display: flex; gap: 10px;">
+                <button class="refresh-btn" onclick="loadData()">🔄 ОБНОВИТЬ</button>
+                <button class="reset-btn" onclick="resetData()">🗑️ СБРОСИТЬ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'ВАША_ССЫЛКА_НА_СКРИПТ/exec';
+        const MAX_ENERGY = 10000;
+        const FACES_COUNT = 12; // Количество граней многогранника
+        let currentData = null;
+
+        function getEnergyThreshold(faceIndex) {
+            // Каждая грань закрашивается после достижения определённого порога
+            return Math.round((faceIndex + 1) / FACES_COUNT * MAX_ENERGY);
+        }
+
+        function getLitFaces(energy) {
+            const lit = [];
+            for (let i = 0; i < FACES_COUNT; i++) {
+                if (energy >= getEnergyThreshold(i)) {
+                    lit.push(i);
+                }
+            }
+            return lit;
+        }
+
+        function drawPolyhedron(energy) {
+            const canvas = document.getElementById('polyhedronCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            ctx.clearRect(0, 0, w, h);
+            
+            const centerX = w / 2;
+            const centerY = h / 2;
+            const radius = 140;
+            
+            const litFaces = getLitFaces(energy);
+            
+            // Рисуем 12 граней в виде шестиугольников вокруг центра
+            const angles = [];
+            for (let i = 0; i < FACES_COUNT; i++) {
+                angles.push((i * 360 / FACES_COUNT) * Math.PI / 180);
+            }
+            
+            // Рисуем каждую грань как шестиугольник
+            for (let i = 0; i < FACES_COUNT; i++) {
+                const angle = angles[i];
+                const isLit = litFaces.includes(i);
+                
+                // Позиция грани (вращающаяся вокруг центра)
+                const x = centerX + Math.cos(angle) * radius * 0.8;
+                const y = centerY + Math.sin(angle) * radius * 0.8;
+                
+                // Рисуем шестиугольник
+                ctx.beginPath();
+                const faceRadius = 35;
+                for (let j = 0; j < 6; j++) {
+                    const faceAngle = j * 60 * Math.PI / 180 + angle;
+                    const px = x + Math.cos(faceAngle) * faceRadius;
+                    const py = y + Math.sin(faceAngle) * faceRadius;
+                    if (j === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                
+                // Заливка
+                if (isLit) {
+                    ctx.fillStyle = '#ff6b6b';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#ff6b6b';
+                } else {
+                    ctx.fillStyle = '#e9ecef';
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fill();
+                ctx.strokeStyle = '#dee2e6';
+                ctx.stroke();
+                
+                // Номер грани
+                ctx.fillStyle = isLit ? 'white' : '#adb5bd';
+                ctx.font = 'bold 14px Inter';
+                ctx.shadowBlur = 0;
+                ctx.fillText(i + 1, x - 8, y + 6);
+            }
+            
+            // Рисуем центр
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 45, 0, 2 * Math.PI);
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fill();
+            ctx.fillStyle = '#ff6b6b';
+            ctx.font = 'bold 24px Inter';
+            ctx.fillText('✨', centerX - 15, centerY + 10);
+        }
+
+        function updateFaceList(energy) {
+            const litFaces = getLitFaces(energy);
+            const container = document.getElementById('faceList');
+            
+            let html = '';
+            for (let i = 0; i < FACES_COUNT; i++) {
+                const isLit = litFaces.includes(i);
+                const threshold = getEnergyThreshold(i);
+                html += `
+                    <div class="face-badge ${isLit ? 'lit' : ''}">
+                        Грань ${i + 1} ${isLit ? '✓' : `(${threshold} эн.)`}
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+            document.getElementById('activeFaces').textContent = litFaces.length;
+        }
+
+        async function loadData() {
+            try {
+                const response = await fetch(API_URL + '?t=' + Date.now());
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    currentData = data.data;
+                    const totalEnergy = currentData.reduce((sum, p) => sum + (p.taps || 0), 0);
+                    
+                    document.getElementById('totalEnergy').textContent = totalEnergy;
+                    document.getElementById('totalPlayers').textContent = currentData.length;
+                    
+                    drawPolyhedron(totalEnergy);
+                    updateFaceList(totalEnergy);
+                    document.getElementById('updateTime').innerHTML = `🕐 Обновлено: ${new Date().toLocaleTimeString()}`;
+                }
+            } catch(error) {
+                console.error('Ошибка:', error);
+            }
+        }
+
+        async function resetData() {
+            if (!confirm('Удалить все данные?')) return;
+            
+            try {
+                const response = await fetch(API_URL + '?reset=1&t=' + Date.now());
+                const data = await response.json();
+                if (data.success) {
+                    alert('Данные очищены');
+                    loadData();
+                }
+            } catch(error) {
+                alert('Ошибка');
+            }
+        }
+
+        loadData();
+        setInterval(loadData, 10000);
+    </script>
+</body>
+</html>
